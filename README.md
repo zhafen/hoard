@@ -7,3 +7,5 @@ A custom treasure trove.
 - Guaranteed rewards
 - Loot probability scales with desired value spent
 - App integration
+- Saves state of hoard
+- Commandline interface
