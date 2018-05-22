@@ -11,3 +11,4 @@ A custom treasure trove.
 - Saves state of hoard
 - Commandline interface
 - Opening a high value chest can produce a bunch of items
+- Chests contain unidentified items; items are unknown until received (requires help of another person)
