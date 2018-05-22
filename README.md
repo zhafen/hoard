@@ -9,3 +9,4 @@ A custom treasure trove.
 - App integration
 - Saves state of hoard
 - Commandline interface
+- Opening a high value chest can produce a bunch of items
