@@ -4,6 +4,7 @@ A custom treasure trove.
 # Target Features
 
 - Loot tables can be input as an excel spreadsheet
+- Or, even better, connects to google docs API?
 - Guaranteed rewards
 - Loot probability scales with desired value spent
 - App integration
