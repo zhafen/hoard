@@ -36,18 +36,14 @@ class TestRetrieveGoogleDriveData( unittest.TestCase ):
 
     def test_retrieve_google_drive_data( self ):
 
-        # self.settings.retrieve_google_drive_data(
-        #     data_dir,
-        #     './tests/data/client_secret.json',
-        # )
         os.system( './tests/run_retrieve_google_drive_data.py' )
 
         assert os.path.isdir( data_dir )
-        assert os.path.is_file( os.path.join( data_dir, 'settings.xlsx' ) )
-        assert os.path.is_file(
+        assert os.path.isfile( os.path.join( data_dir, 'settings.xlsx' ) )
+        assert os.path.isfile(
             os.path.join( data_dir, 'users', 'steven', 'loot_table.xlsx' )
         )
-        assert os.path.is_file(
+        assert os.path.isfile(
             os.path.join( data_dir, 'users', 'steven', 'itype_donut.xlsx' )
         )
 

@@ -34,12 +34,17 @@ class Settings( object ):
         self,
         drive_dir_name,
         target_dir,
-        client_credential_file,
+        client_secret_file,
     ):
         '''Retrieve data from a google drive. This is hacked together from examples so... no guarantees it works.
 
         Args:
+
+            drive_dir_name (str) : Name of the google drive folder to get data from.
+
             target_dir (str) : Directory to save the data at.
+
+            client_secret_file (str) : client_secrets.json filepath
         '''
 
 
@@ -51,39 +56,29 @@ class Settings( object ):
         store = oauth2client.file.Storage('credentials.json')
         creds = store.get()
         if not creds or creds.invalid:
-            flow = oauth2client.client.flow_from_clientsecrets(client_credential_file, SCOPES)
+            flow = oauth2client.client.flow_from_clientsecrets(client_secret_file, SCOPES)
             creds = oauth2client.tools.run_flow(flow, store)
         service = api_discovery.build('drive', 'v3', http=creds.authorize(httplib2.Http()))
 
-        # Call the Drive v3 API
-        # results = service.files().list(
-        #     pageSize=10, fields="nextPageToken, files(id, name)").execute()
-        # items = results.get('files', [])
-        # if not items:
-        #     print('No files found.')
-        # else:
-        #     for item in items:
-        #         if item['name'] == drive_dir_name:
-        #             print('{0} ({1})'.format(item['name'], item['id']))
-
-        #             file_name = item['name']
-        #             file_id = item['id']
-
         def export_spreadsheet( file_id, export_dir, export_name ):
+
+            # Make the request
             request = service.files().export_media(
                 fileId=file_id,
                 mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             )
 
+            # Make the save dir available
             utilities.make_dir( export_dir )
             export_path = os.path.join( export_dir, export_name )
+            print( "Retrieving {}".format( export_path ) )
             fh = io.FileIO( export_path, 'wb' )
 
+            # Download the file
             downloader = api_http.MediaIoBaseDownload(fh, request)
             done = False
             while done is False:
                 status, done = downloader.next_chunk()
-                print "Download %d%%." % int(status.progress() * 100)
 
         def get_file( query ):
             '''Get a particular file that matches the given query. If multiple files match rais an Error.'''
@@ -99,11 +94,23 @@ class Settings( object ):
         # Download the settings
         query = "parents='{}' and name='settings'".format( drive_dir['id'] )
         settings = get_file( query )
-        filename = os.path.join( target_dir, 'settings.xlsx' )
-        export_spreadsheet( settings['id'], filename )
+        export_spreadsheet( settings['id'], target_dir, 'settings.xlsx' )
 
-        #DEBUG
-        import pdb; pdb.set_trace()
+        # Get the user data
+        query = "parents='{}' and name='users'".format( drive_dir['id'] )
+        user_data_folder = get_file( query )
+        query = "parents='{}'".format( user_data_folder['id'] )
+        user_data = service.files().list( q=query ).execute()
+        for specific_user_data in user_data['files']:
 
+            # Get the save dir
+            save_dir = os.path.join( target_dir, 'users', specific_user_data['name'] )
 
-        
+            # Save each file
+            query = "parents='{}'".format( specific_user_data['id'] )
+            user_files = service.files().list( q=query ).execute()['files']
+            for user_file in user_files:
+
+                if user_file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
+                    save_name = '{}.xlsx'.format( user_file['name'] )
+                    export_spreadsheet( user_file['id'], save_dir, save_name )
