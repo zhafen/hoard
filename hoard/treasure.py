@@ -33,7 +33,8 @@ class TreasureChest( object ):
             return
 
         # Determine what item type dropped
-        item_type_ind = prob_tools.sample_discrete_probabilities( self.item_type_ps )
+        item_type_ps = self.loot_table['Probability'].values
+        item_type_ind = prob_tools.sample_discrete_probabilities( item_type_ps )
 
         # Determine what item of the item types dropped.
 
