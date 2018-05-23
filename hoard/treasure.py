@@ -11,29 +11,38 @@
 
 class TreasureChest( object ):
 
-    def __init__( self ):
-       pass 
+    def __init__(
+        self,
+        user,
+        data_location,
+    ):
 
     ########################################################################
 
     def generate_item( self ):
 
-        if self.is_gold():
+        # Figure out if the item is just gold
+        gold_ps = np.array([ self.p_gold, 1. - self.p_gold ])
+        gold_ind = prob_tools.sample_discrete_probabilities( gold_ps )
+        is_gold = gold_ind == 0
 
-            # 
-            return gold
+        # If we got gold, exit early
+        if is_gold:
+            self.contained_gold += np.random.randint( self.settings['gold_low'], self.settings['gold_high'] )
 
-########################################################################
-########################################################################
+            return
 
-class Treasure( object ):
+        # Determine what item type dropped
+        item_type_ind = prob_tools.sample_discrete_probabilities( self.item_type_ps )
 
-    def __init__( self ):
+        # Determine what item of the item types dropped.
 
-        pass
+        # Append to the list of items
 
     ########################################################################
 
+    def generate_contents( self, n_items ):
 
-
+        for i in range( n_items ):
+            self.generate_item()
 

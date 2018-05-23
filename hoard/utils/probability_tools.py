@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import copy
 import numpy as np
 
 ########################################################################
@@ -24,6 +25,8 @@ def sample_discrete_probabilities( ps, normalize_ps=True ):
         event_ind (int) : Index of event.
     '''
 
+    ps = copy.copy( ps )
+
     if normalize_ps:
         ps /= ps.sum()
 
@@ -34,7 +37,3 @@ def sample_discrete_probabilities( ps, normalize_ps=True ):
     x = np.random.uniform() > cumulatives
 
     return np.argmin( x ) - 1
-
-
-    
-
