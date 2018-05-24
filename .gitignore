@@ -3,3 +3,4 @@
 .cache
 client_secret.json
 credentials.json
+.ipynb_checkpoints

@@ -13,8 +13,10 @@ import httplib2
 import io
 import oauth2client
 import os
+import pandas as pd
 
 import hoard.utils.utilities as utilities
+import hoard.config as hoard_config
 
 ########################################################################
 ########################################################################
@@ -25,31 +27,150 @@ class Settings( object ):
     def __init__(
         self,
         username,
+        data_dir,
+        import_data_on_startup = False,
     ):
         pass
+
+        if import_data_on_startup:
+            self.retrieve_google_drive_data(
+                hoard_config.DRIVE_FOLDER_NAME,
+                hoard_config.CLIENT_SECRET_FILEPATH,
+            )
+
+    ########################################################################
+
+    @property
+    def settings_table( self ):
+        '''Open and store the table containing overall settings.
+        '''
+
+        if not hasattr( self, '_settings_table' ):
+            filepath = os.path.join(
+                self.data_dir, 'settings.xlsx' )
+            full_settings_table = pd.read_excel( filepath, index_col=0 )
+
+            self._settings_table = full_settings_table.loc[self.username]
+
+        return self._settings_table
+
+    ########################################################################
+
+    @property
+    def loot_table( self ):
+        '''Open and store the loot table for the user.
+        The loot table contains different item types, and their probability to drop.
+        '''
+
+        if not hasattr( self, '_loot_table' ):
+            filepath = os.path.join(
+                self.data_dir, 'users', self.username, 'loot_table.xlsx' )
+            self._loot_table = pd.read_excel( filepath )
+
+        return self._loot_table
+
+    ########################################################################
+
+    @property
+    def loot_probabilities( self ):
+        '''Get the probability for different loot types to drop. The reason this
+        isn't pulled straight from the table is because the probability might not
+        be normalized.
+        '''
+
+        loot_probabilities = self.loot_table['Probability'].values
+        return loot_probabilities/loot_probabilities.sum()
+
+    ########################################################################
+
+    @property
+    def loot_expected_values( self ):
+        '''Get the expected value out for each item category.
+        '''
+
+        if not hasattr( self, '_loot_expected_values' ):
+
+            self._loot_expected_values = []
+            for item_table in self.item_tables:
+
+                expected_value = item_table['Value'].mean()
+
+                self._loot_expected_values.append( expected_value )
+
+        return self._loot_expected_values
+
+    ########################################################################
+
+    @property
+    def item_tables( self ):
+        '''Get detailed information about items can drop, for a given category.
+        '''
+
+        if not hasattr( self, '_item_tables' ):
+            
+            self._item_tables = []
+            for item_type in self.loot_table['Item Type']:
+
+                item_type_name = item_type.lower().replace( ' ', '_' )
+                itype_table_filename = 'itype_{}.xlsx'.format( item_type_name )
+                table_filepath = os.path.join(
+                    self.data_dir,
+                    'users',
+                    self.username,
+                    itype_table_filename,
+                )
+
+                self._item_tables.append( pd.read_excel( table_filepath ) )
+
+        return self._item_tables
+
+    ########################################################################
+
+    @property
+    def average_token_value( self ):
+        '''Get the total average value of a token.'''
+
+        total_value = self.settings_table['Total Reward'] + self.settings_table['Total Savings']
+        return float( total_value ) / self.settings_table['Total Tokens']
+
+    ########################################################################
+
+    @property
+    def average_token_reward( self ):
+        '''Get the average value of a token that is reward.'''
+
+        return float( self.settings_table['Total Reward'] ) / self.settings_table['Total Tokens']
+
+    ########################################################################
+
+    @property
+    def p_gold( self ):
+        '''Get the probability of returning gold when spending a token.'''
+
+        average_treasure_value = ( self.loot_probabilities * self.loot_expected_values ).sum()
+
+        return 1. - self.average_token_reward / average_treasure_value
 
     ########################################################################
 
     def retrieve_google_drive_data(
         self,
         drive_dir_name,
-        target_dir,
         client_secret_file,
     ):
         '''Retrieve data from a google drive. This is hacked together from examples so... no guarantees it works.
+        There is a test for it.
 
         Args:
 
             drive_dir_name (str) : Name of the google drive folder to get data from.
-
-            target_dir (str) : Directory to save the data at.
 
             client_secret_file (str) : client_secrets.json filepath
         '''
 
 
         # Make the target directory
-        utilities.make_dir( target_dir )
+        utilities.make_dir( self.data_dir )
 
         # Setup the Drive v3 API
         SCOPES = 'https://www.googleapis.com/auth/drive'
@@ -87,14 +208,14 @@ class Settings( object ):
             assert len( potential_files['files'] ) == 1, "Multiple possible folders detected."
             return potential_files['files'][0]
 
-        # Find the target_dir
+        # Find the Drive dir
         query = "name='{}'".format( drive_dir_name )
         drive_dir = get_file( query )
 
         # Download the settings
         query = "parents='{}' and name='settings'".format( drive_dir['id'] )
         settings = get_file( query )
-        export_spreadsheet( settings['id'], target_dir, 'settings.xlsx' )
+        export_spreadsheet( settings['id'], self.data_dir, 'settings.xlsx' )
 
         # Get the user data
         query = "parents='{}' and name='users'".format( drive_dir['id'] )
@@ -104,7 +225,7 @@ class Settings( object ):
         for specific_user_data in user_data['files']:
 
             # Get the save dir
-            save_dir = os.path.join( target_dir, 'users', specific_user_data['name'] )
+            save_dir = os.path.join( self.data_dir, 'users', specific_user_data['name'] )
 
             # Save each file
             query = "parents='{}'".format( specific_user_data['id'] )

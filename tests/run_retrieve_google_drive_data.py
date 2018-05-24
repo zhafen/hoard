@@ -8,10 +8,12 @@
 
 import hoard.settings as hoard_settings
 
-settings = hoard_settings.Settings( 'steven' )
+settings = hoard_settings.Settings(
+    'steven',
+    './tests/data/test_google_drive_data',
+)
 
 settings.retrieve_google_drive_data(
     'test_hoard_data',
-    './tests/data/test_google_drive_data',
     './tests/data/client_secret.json',
 )
