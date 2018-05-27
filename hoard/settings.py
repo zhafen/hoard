@@ -30,13 +30,19 @@ class Settings( object ):
         username,
         data_dir,
         import_data_on_startup = False,
+        drive_folder_name = None,
+        client_secret_filepath = None,
     ):
-        pass
+
+        if drive_folder_name is None:
+            drive_folder_name = hoard_config.DRIVE_FOLDER_NAME
+        if client_secret_filepath is None:
+            client_secret_filepath = hoard_config.CLIENT_SECRET_FILEPATH
 
         if import_data_on_startup:
             self.retrieve_google_drive_data(
-                hoard_config.DRIVE_FOLDER_NAME,
-                hoard_config.CLIENT_SECRET_FILEPATH,
+                drive_folder_name,
+                client_secret_filepath
             )
 
     ########################################################################
@@ -79,7 +85,7 @@ class Settings( object ):
         be normalized.
         '''
 
-        loot_probabilities = self.loot_table['Likelihood'].values
+        loot_probabilities = self.loot_table['Likelihood'].values.astype( float )
         return loot_probabilities/loot_probabilities.sum()
 
     ########################################################################
@@ -182,7 +188,6 @@ class Settings( object ):
 
             client_secret_file (str) : client_secrets.json filepath
         '''
-
 
         # Make the target directory
         utilities.make_dir( self.data_dir )

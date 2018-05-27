@@ -26,7 +26,8 @@ class TreasureChest( object ):
         data_location,
         n_tokens = None,
         time = None,
-        import_data_on_startup = False,
+        bonus_factor = 1.,
+        *args, **kwargs
     ):
 
         self.id = np.random.randint( 1000000 )
@@ -34,7 +35,7 @@ class TreasureChest( object ):
         self.settings = hoard_settings.Settings(
             username,
             data_location,
-            import_data_on_startup = import_data_on_startup,
+            *args, **kwargs
         )
 
         n_tokens_used = 0
@@ -44,6 +45,8 @@ class TreasureChest( object ):
 
         if time is not None:
             n_tokens_used += self.settings.time_to_tokens( time )
+
+        n_tokens_used = int( n_tokens_used * bonus_factor )
 
         self.generate_contents( n_tokens_used )
 
@@ -64,7 +67,7 @@ class TreasureChest( object ):
             return
 
         # Determine what item type dropped
-        item_type_ps = self.settings.loot_table['Likelihood'].values
+        item_type_ps = self.settings.loot_table['Likelihood'].values.astype( float )
         item_type_ind = prob_tools.sample_discrete_probabilities( item_type_ps )
 
         # Determine what item of the item types dropped.
@@ -119,4 +122,5 @@ class TreasureChest( object ):
 
         else:
             print( "{} gold!".format( self.gold ) )
+
 
