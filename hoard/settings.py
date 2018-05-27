@@ -11,6 +11,7 @@ import apiclient.discovery as api_discovery
 import apiclient.http as api_http
 import httplib2
 import io
+import math
 import oauth2client
 import os
 import pandas as pd
@@ -130,7 +131,7 @@ class Settings( object ):
     def average_token_value( self ):
         '''Get the total average value of a token.'''
 
-        total_value = self.settings_table['Total Loot'] + self.settings_table['Total Savings']
+        total_value = self.settings_table['Loot Value'] + self.settings_table['Gold Value']
         return float( total_value ) / self.settings_table['Total Tokens']
 
     ########################################################################
@@ -139,7 +140,7 @@ class Settings( object ):
     def average_token_loot_value( self ):
         '''Get the average value of a token that is reward.'''
 
-        return float( self.settings_table['Total Loot'] ) / self.settings_table['Total Tokens']
+        return float( self.settings_table['Loot Value'] ) / self.settings_table['Total Tokens']
 
     ########################################################################
 
@@ -150,6 +151,20 @@ class Settings( object ):
         average_treasure_value = ( self.loot_probabilities * self.loot_expected_values ).sum()
 
         return 1. - self.average_token_loot_value / average_treasure_value
+
+    ########################################################################
+
+    def time_to_tokens( self, time ):
+        '''Get the amount of tokens equivalent to spending some amount of time on things.
+
+        Args:
+            time (float) : time in hours spent.
+
+        Returns:
+            n_tokens (int) : equivalent number of tokens.
+        '''
+
+        return int( math.ceil( time*self.settings_table['Tokens Per Hour'] ) )
 
     ########################################################################
 

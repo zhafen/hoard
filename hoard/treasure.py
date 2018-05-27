@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Treausre objects, e.g. TreasureChests
+'''Treasure objects, e.g. TreasureChests
 
 @author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
@@ -24,7 +24,8 @@ class TreasureChest( object ):
         self,
         username,
         data_location,
-        n_tokens,
+        n_tokens = None,
+        time = None,
         import_data_on_startup = False,
     ):
 
@@ -36,7 +37,15 @@ class TreasureChest( object ):
             import_data_on_startup = import_data_on_startup,
         )
 
-        self.generate_contents( n_tokens )
+        n_tokens_used = 0
+
+        if n_tokens is not None:
+            n_tokens_used += n_tokens
+
+        if time is not None:
+            n_tokens_used += self.settings.time_to_tokens( time )
+
+        self.generate_contents( n_tokens_used )
 
     ########################################################################
 
@@ -96,14 +105,18 @@ class TreasureChest( object ):
 
         print( "You open a chest! In the chest you find..." )
 
-        for i in self.items.index:
-            
-            item = self.items.loc[i]
+        if self.items is not None:
+            for i in self.items.index:
+                
+                item = self.items.loc[i]
 
-            if item['Identified']:
-                print( "a {},".format( item['Name'] ) )
-            else:
-                print( "an unidentified {},".format( item['Item Type'] ) )
+                if item['Identified']:
+                    print( "a {},".format( item['Name'] ) )
+                else:
+                    print( "an unidentified {},".format( item['Item Type'] ) )
 
-        print( "and {} gold!".format( self.gold ) )
+            print( "and {} gold!".format( self.gold ) )
+
+        else:
+            print( "{} gold!".format( self.gold ) )
 
