@@ -22,21 +22,19 @@ class TreasureChest( object ):
     @utilities.store_parameters
     def __init__(
         self,
-        username,
-        data_location,
+        settings = None,
         n_tokens = None,
         time = None,
         bonus_factor = 1.,
         *args, **kwargs
     ):
 
-        self.id = np.random.randint( 1000000 )
+        self.id = np.random.randint( 1e12 )
 
-        self.settings = hoard_settings.Settings(
-            username,
-            data_location,
-            *args, **kwargs
-        )
+        if self.settings is None:
+            self.settings = hoard_settings.Settings(
+                *args, **kwargs
+            )
 
         n_tokens_used = 0
 
