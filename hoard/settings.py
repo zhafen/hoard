@@ -64,7 +64,7 @@ class Settings( object ):
 
         if not hasattr( self, '_loot_table' ):
             filepath = os.path.join(
-                self.data_dir, 'users', self.username, 'loot_table.xlsx' )
+                self.data_dir, 'loot_tables', self.username, 'loot_table.xlsx' )
             self._loot_table = pd.read_excel( filepath )
 
         return self._loot_table
@@ -78,7 +78,7 @@ class Settings( object ):
         be normalized.
         '''
 
-        loot_probabilities = self.loot_table['Probability'].values
+        loot_probabilities = self.loot_table['Likelihood'].values
         return loot_probabilities/loot_probabilities.sum()
 
     ########################################################################
@@ -115,7 +115,7 @@ class Settings( object ):
                 itype_table_filename = 'itype_{}.xlsx'.format( item_type_name )
                 table_filepath = os.path.join(
                     self.data_dir,
-                    'users',
+                    'loot_tables',
                     self.username,
                     itype_table_filename,
                 )
@@ -130,16 +130,16 @@ class Settings( object ):
     def average_token_value( self ):
         '''Get the total average value of a token.'''
 
-        total_value = self.settings_table['Total Reward'] + self.settings_table['Total Savings']
+        total_value = self.settings_table['Total Loot'] + self.settings_table['Total Savings']
         return float( total_value ) / self.settings_table['Total Tokens']
 
     ########################################################################
 
     @property
-    def average_token_reward( self ):
+    def average_token_loot_value( self ):
         '''Get the average value of a token that is reward.'''
 
-        return float( self.settings_table['Total Reward'] ) / self.settings_table['Total Tokens']
+        return float( self.settings_table['Total Loot'] ) / self.settings_table['Total Tokens']
 
     ########################################################################
 
@@ -149,7 +149,7 @@ class Settings( object ):
 
         average_treasure_value = ( self.loot_probabilities * self.loot_expected_values ).sum()
 
-        return 1. - self.average_token_reward / average_treasure_value
+        return 1. - self.average_token_loot_value / average_treasure_value
 
     ########################################################################
 
@@ -218,14 +218,14 @@ class Settings( object ):
         export_spreadsheet( settings['id'], self.data_dir, 'settings.xlsx' )
 
         # Get the user data
-        query = "parents='{}' and name='users'".format( drive_dir['id'] )
+        query = "parents='{}' and name='loot_tables'".format( drive_dir['id'] )
         user_data_folder = get_file( query )
         query = "parents='{}'".format( user_data_folder['id'] )
         user_data = service.files().list( q=query ).execute()
         for specific_user_data in user_data['files']:
 
             # Get the save dir
-            save_dir = os.path.join( self.data_dir, 'users', specific_user_data['name'] )
+            save_dir = os.path.join( self.data_dir, 'loot_tables', specific_user_data['name'] )
 
             # Save each file
             query = "parents='{}'".format( specific_user_data['id'] )

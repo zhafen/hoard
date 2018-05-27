@@ -28,10 +28,6 @@ class TestRetrieveGoogleDriveData( unittest.TestCase ):
         if os.path.isdir( data_dir ):
             shutil.rmtree( data_dir )
 
-        self.settings = hoard_settings.Settings(
-            'steven',
-        )
-
     ########################################################################
 
     def test_retrieve_google_drive_data( self ):
@@ -41,10 +37,10 @@ class TestRetrieveGoogleDriveData( unittest.TestCase ):
         assert os.path.isdir( data_dir )
         assert os.path.isfile( os.path.join( data_dir, 'settings.xlsx' ) )
         assert os.path.isfile(
-            os.path.join( data_dir, 'users', 'steven', 'loot_table.xlsx' )
+            os.path.join( data_dir, 'loot_tables', 'steven', 'loot_table.xlsx' )
         )
         assert os.path.isfile(
-            os.path.join( data_dir, 'users', 'steven', 'itype_donut.xlsx' )
+            os.path.join( data_dir, 'loot_tables', 'steven', 'itype_donut.xlsx' )
         )
 
 

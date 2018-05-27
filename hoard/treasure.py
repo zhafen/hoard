@@ -25,25 +25,18 @@ class TreasureChest( object ):
         username,
         data_location,
         n_tokens,
+        import_data_on_startup = False,
     ):
+
+        self.id = np.random.randint( 1000000 )
 
         self.settings = hoard_settings.Settings(
             username,
             data_location,
+            import_data_on_startup = import_data_on_startup,
         )
 
-        # Initial values
-        self.gold = 0
-        self.items = []
-
         self.generate_contents( n_tokens )
-
-        # Format the items
-        if len( self.items ) == 0:
-            self.items = None
-        else:
-            self.items = pd.concat( self.items, axis=1, ignore_index=True )
-            self.items = self.items.transpose()
 
     ########################################################################
 
@@ -62,12 +55,17 @@ class TreasureChest( object ):
             return
 
         # Determine what item type dropped
-        item_type_ps = self.settings.loot_table['Probability'].values
+        item_type_ps = self.settings.loot_table['Likelihood'].values
         item_type_ind = prob_tools.sample_discrete_probabilities( item_type_ps )
 
         # Determine what item of the item types dropped.
         itype_table = self.settings.item_tables[item_type_ind]
         item = itype_table.loc[np.random.randint( len( itype_table ) )]
+
+        # Add extra information
+        item.set_value( 'Item Type', self.settings.loot_table['Item Type'].loc[item_type_ind] )
+        item.set_value( 'Identified', self.settings.loot_table['Identified'].loc[item_type_ind] )
+        item.set_value( 'Chest ID', self.id )
 
         # Append to the list of items
         self.items.append( item )
@@ -77,6 +75,35 @@ class TreasureChest( object ):
     def generate_contents( self, n_tokens ):
         '''Generate the contents of the chest.'''
 
+        # Initial values
+        self.gold = 0
+        self.items = []
+
         for i in range( n_tokens ):
             self.generate_item()
+
+        # Format the items
+        if len( self.items ) == 0:
+            self.items = None
+        else:
+            self.items = pd.concat( self.items, axis=1, ignore_index=True )
+            self.items = self.items.transpose()
+
+    ########################################################################
+
+    def open( self ):
+        '''Print the contents of the chest.'''
+
+        print( "You open a chest! In the chest you find..." )
+
+        for i in self.items.index:
+            
+            item = self.items.loc[i]
+
+            if item['Identified']:
+                print( "a {},".format( item['Name'] ) )
+            else:
+                print( "an unidentified {},".format( item['Item Type'] ) )
+
+        print( "and {} gold!".format( self.gold ) )
 
