@@ -92,6 +92,18 @@ class Bank( object ):
 
     ########################################################################
 
+    def deposit( self, chest ):
+        '''Store the contents of a chest in the bank.'''
+
+        self.deposit_gold( chest )
+
+        self.deposit_items( chest )
+
+        # Print results
+        print( "Chest deposited! Current balance is {} gold.".format( self.gold ) )
+
+    ########################################################################
+
     def deposit_gold( self, chest ):
         '''Store all the gold in a chest in the bank.'''
 
@@ -110,6 +122,9 @@ class Bank( object ):
         # Make the deposit
         self.gold_record = self.gold_record.append( series, ignore_index=True )
 
-        # Print results
-        print( "Chest deposited! Current balance is {} gold.".format( self.gold ) )
+    ########################################################################
 
+    def deposit_items( self, chest ):
+        '''Store all the items in a chest in the bank.'''
+
+        self.item_record = self.item_record.append( chest.items, ignore_index=True )
