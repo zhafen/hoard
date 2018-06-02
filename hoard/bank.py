@@ -64,8 +64,9 @@ class Bank( object ):
     ########################################################################
 
     def deposit_gold( self, chest ):
+        '''Store all the gold in a chest in the bank.'''
 
-        assert chest.id not in self.gold_record['Chest ID'], \
+        assert chest.id not in self.gold_record['Chest ID'].values, \
             "Chest ID already stored in bank! Cannot double deposit!"
 
         # Construct series to deposit
@@ -80,4 +81,6 @@ class Bank( object ):
         # Make the deposit
         self.gold_record = self.gold_record.append( series, ignore_index=True )
 
+        # Print results
+        print( "Chest deposited! Current balance is {} gold.".format( self.gold ) )
 

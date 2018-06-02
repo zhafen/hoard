@@ -36,17 +36,17 @@ class TreasureChest( object ):
                 *args, **kwargs
             )
 
-        n_tokens_used = 0
+        self.n_tokens_used = 0
 
         if n_tokens is not None:
-            n_tokens_used += n_tokens
+            self.n_tokens_used += n_tokens
 
         if time is not None:
-            n_tokens_used += self.settings.time_to_tokens( time )
+            self.n_tokens_used += self.settings.time_to_tokens( time )
 
-        n_tokens_used = int( n_tokens_used * bonus_factor )
+        self.n_tokens_used = int( self.n_tokens_used * bonus_factor )
 
-        self.generate_contents( n_tokens_used )
+        self.generate_contents( self.n_tokens_used )
 
     ########################################################################
 
@@ -60,7 +60,7 @@ class TreasureChest( object ):
 
         # If we got gold, exit early
         if is_gold:
-            self.gold += np.random.randint( 1, 10 )
+            self.gold += np.random.randint( 1, self.settings.gold_max )
 
             return
 

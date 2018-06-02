@@ -109,6 +109,27 @@ class Settings( object ):
     ########################################################################
 
     @property
+    def expected_gold_per_token( self ):
+        '''Get the expected gold from a single token.'''
+
+        total_expected_gold = self.settings_table['Gold Value'] * self.settings_table['Gold per Value']
+        expected_tokens_spent_on_gold = self.settings_table['Total Tokens'] * self.p_gold
+
+        return total_expected_gold / expected_tokens_spent_on_gold
+
+    ########################################################################
+
+    @property
+    def gold_max( self ):
+        '''Get the maximum amount of gold from a single token (assuming the gold per token is a uniform distribution
+        between 1 and gold_max with mean self.expected_gold_per_token)
+        '''
+
+        return int( math.ceil( 2. * self.expected_gold_per_token - 1. ) )
+
+    ########################################################################
+
+    @property
     def item_tables( self ):
         '''Get detailed information about items can drop, for a given category.
         '''
@@ -170,7 +191,7 @@ class Settings( object ):
             n_tokens (int) : equivalent number of tokens.
         '''
 
-        return int( math.ceil( time*self.settings_table['Tokens Per Hour'] ) )
+        return int( math.ceil( time*self.settings_table['Tokens per Hour'] ) )
 
     ########################################################################
 
