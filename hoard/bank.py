@@ -63,6 +63,35 @@ class Bank( object ):
 
     ########################################################################
 
+    @property
+    def item_record( self ):
+        '''Record of all gold transactions.'''
+
+        if not hasattr( self, '_item_record' ):
+            filepath = os.path.join(
+                self.settings.data_dir,
+                'loot_tables',
+                self.settings.username,
+                'item_record.xlsx',
+            )
+            self._item_record = pd.read_excel( filepath )
+
+        return self._item_record
+
+    @item_record.setter
+    def item_record( self, value ):
+        self._item_record = value
+
+        filepath = os.path.join(
+            self.settings.data_dir,
+            'loot_tables',
+            self.settings.username,
+            'item_record.xlsx',
+        )
+        self._item_record.to_excel( filepath )
+
+    ########################################################################
+
     def deposit_gold( self, chest ):
         '''Store all the gold in a chest in the bank.'''
 

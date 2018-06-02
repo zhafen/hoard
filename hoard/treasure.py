@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import copy
 import numpy as np
 import pandas as pd
 
@@ -70,7 +71,7 @@ class TreasureChest( object ):
 
         # Determine what item of the item types dropped.
         itype_table = self.settings.item_tables[item_type_ind]
-        item = itype_table.loc[np.random.randint( len( itype_table ) )]
+        item = copy.copy( itype_table.loc[np.random.randint( len( itype_table ) )] )
 
         # Add extra information
         item.set_value( 'Item Type', self.settings.loot_table['Item Type'].loc[item_type_ind] )
