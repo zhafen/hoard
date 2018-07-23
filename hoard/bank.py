@@ -64,6 +64,14 @@ class Bank( object ):
     ########################################################################
 
     @property
+    def gold_value( self ):
+        '''Current gold balance, converted into value.'''
+
+        return float( self.gold ) / self.settings.settings_table['Gold per Value']
+
+    ########################################################################
+
+    @property
     def item_record( self ):
         '''Record of all gold transactions.'''
 
@@ -128,3 +136,26 @@ class Bank( object ):
         '''Store all the items in a chest in the bank.'''
 
         self.item_record = self.item_record.append( chest.items, ignore_index=True )
+
+    ########################################################################
+
+    def withdraw( self, gold=0, value=0. ):
+        '''Make a withdrawal from the bank.'''
+
+        withdrawal_amount = gold + int( value * self.settings.settings_table['Gold per Value'] )
+        if withdrawal_amount > self.gold:
+            raise Exception( "Insufficient gold in bank!" )
+
+        withdrawal_id = np.random.randint( 1e12 )
+
+        # Construct series to deposit
+        values = {
+            'Deposit/Withdrawal' : -withdrawal_amount,
+            'Balance' : -withdrawal_amount + self.gold,
+            'Time' : pd.Timestamp.now(),
+            'Chest ID' : withdrawal_id,
+        }
+        series = pd.Series( values )
+
+        # Make the deposit
+        self.gold_record = self.gold_record.append( series, ignore_index=True )

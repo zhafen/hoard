@@ -6,10 +6,12 @@
 @status: Development
 '''
 
+import copy
 import errno
 import functools
 import inspect
 import os
+import pandas as pd
 
 ########################################################################
 ########################################################################
@@ -41,6 +43,8 @@ def store_parameters( constructor ):
 
     return wrapped_constructor
 
+########################################################################
+
 def make_dir( dir ):
 
     # Make sure the output directory exists
@@ -51,3 +55,31 @@ def make_dir( dir ):
             pass
         else:
             raise
+
+########################################################################
+
+def generic_table_getter(
+    instance,
+    property_name,
+    root_folder,
+    subfolders=[],
+    filetype = 'xlsx',
+    index_col = None,
+):
+    '''Generic property for loading in an excel file in a subdirectory.'''
+
+    hidden_attr = '_{}'.format( property_name )
+
+    if not hasattr( instance, hidden_attr ):
+
+        # Set up the subfolders
+        used_subfolders = copy.copy( subfolders )
+        used_subfolders.append( '{}.{}'.format( property_name, filetype ) )
+
+        filepath = os.path.join( root_folder, *used_subfolders )
+
+        df = pd.read_excel( filepath, index_col=index_col )
+
+        setattr( instance, hidden_attr, df )
+
+    return getattr( instance, hidden_attr )

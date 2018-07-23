@@ -12,13 +12,13 @@ import numpy as np
 ########################################################################
 ########################################################################
 
-def sample_discrete_probabilities( ps, normalize_ps=True ):
+def sample_discrete_probabilities( ps, normalize=True ):
     '''Given a list of event probabilities, find the event that occured.
 
     Args:
         ps (np.ndarray) : Event probabilities.
 
-        normalize_ps (bool) :
+        normalize (bool) :
             If the probabilities do not sum to one, make sure they do.
 
     Returns:
@@ -27,7 +27,7 @@ def sample_discrete_probabilities( ps, normalize_ps=True ):
 
     ps = copy.copy( ps )
 
-    if normalize_ps:
+    if normalize:
         ps /= ps.sum()
 
     # Set up the cumulative probabilities
