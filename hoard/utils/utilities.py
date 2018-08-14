@@ -83,3 +83,26 @@ def generic_table_getter(
         setattr( instance, hidden_attr, df )
 
     return getattr( instance, hidden_attr )
+
+########################################################################
+
+def generic_table_setter(
+    instance,
+    property_name,
+    value,
+    root_folder,
+    subfolders=[],
+    filetype = 'xlsx',
+):
+    '''Generic property for saving a table when it's update.'''
+
+    hidden_attr = '_{}'.format( property_name )
+
+    setattr( instance, hidden_attr, value )
+
+    # Set up the subfolders
+    used_subfolders = copy.copy( subfolders )
+    used_subfolders.append( '{}.{}'.format( property_name, filetype ) )
+    filepath = os.path.join( root_folder, *used_subfolders )
+
+    value.to_excel( filepath )

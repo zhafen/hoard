@@ -25,7 +25,7 @@ def sample_discrete_probabilities( ps, normalize=True ):
         event_ind (int) : Index of event.
     '''
 
-    ps = copy.copy( ps )
+    ps = copy.copy( ps ).astype( float )
 
     if normalize:
         ps /= ps.sum()
