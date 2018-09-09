@@ -37,3 +37,31 @@ def sample_discrete_probabilities( ps, normalize=True ):
     x = np.random.uniform() > cumulatives
 
     return np.argmin( x ) - 1
+
+########################################################################
+
+def sample_table( table, n ):
+    '''Given a table containing rows of data and the corresponding likelihood
+    to choose those rows, sample the table.
+
+    Args:
+        table (pd.DataFrame) :
+            Table to sample
+
+        n (int) :
+            Number of samples to draw.
+
+    Returns:
+        sampled_table (pd.DataFrame) :
+            Sampled version of the table.
+    '''
+
+    inds = []
+    for i in range( n ):
+        ind = sample_discrete_probabilities(
+            table['Likelihood'].values,
+            normalize = True,
+        )
+        inds.append( ind )
+
+    return table.iloc[inds]
