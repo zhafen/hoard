@@ -37,7 +37,7 @@ def store_parameters( constructor ):
         for parameter in parameters_to_store.keys():
             setattr( self, parameter, parameters_to_store[parameter] )
 
-        self.stored_parameters = parameters_to_store.keys()
+        self.stored_parameters = list( parameters_to_store.keys() )
 
         result = constructor( self, *args, **kwargs )
 
@@ -94,13 +94,14 @@ def generic_table_setter(
     subfolders=[],
     filetype = 'xlsx',
 ):
-    '''Generic property for saving a table when it's update.'''
+    '''Generic property for saving a table when it's updated.'''
 
     hidden_attr = '_{}'.format( property_name )
 
     setattr( instance, hidden_attr, value )
 
     # Set up the subfolders
+    make_dir( os.path.join( root_folder, *subfolders ) )
     used_subfolders = copy.copy( subfolders )
     used_subfolders.append( '{}.{}'.format( property_name, filetype ) )
     filepath = os.path.join( root_folder, *used_subfolders )
