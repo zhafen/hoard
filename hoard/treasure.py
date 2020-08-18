@@ -71,7 +71,13 @@ class TreasureChest( object ):
 
         # Determine what item of the item types dropped.
         itype_table = self.settings.item_tables[item_type_ind]
-        item = copy.copy( itype_table.loc[np.random.randint( len( itype_table ) )] )
+        if 'Likelihood' in itype_table.columns:
+            item_ind = prob_tools.sample_discrete_probabilities(
+                itype_table['Likelihood'].values,
+            )
+        else:
+            item_ind = np.random.randint( len( itype_table ) )
+        item = copy.copy( itype_table.loc[item_ind] )
 
         # Add extra information
         item.set_value( 'Item Type', self.settings.loot_table['Item Type'].loc[item_type_ind] )
