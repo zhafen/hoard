@@ -13,6 +13,7 @@ import httplib2
 import io
 import math
 import oauth2client
+from oauth2client import file, tools
 import os
 import pandas as pd
 
@@ -215,11 +216,11 @@ class Settings( object ):
 
         # Setup the Drive v3 API
         SCOPES = 'https://www.googleapis.com/auth/drive'
-        store = oauth2client.file.Storage('credentials.json')
+        store = file.Storage('credentials.json')
         creds = store.get()
         if not creds or creds.invalid:
             flow = oauth2client.client.flow_from_clientsecrets(client_secret_file, SCOPES)
-            creds = oauth2client.tools.run_flow(flow, store)
+            creds = tools.run_flow(flow, store)
         service = api_discovery.build('drive', 'v3', http=creds.authorize(httplib2.Http()))
 
         def export_spreadsheet( file_id, export_dir, export_name ):

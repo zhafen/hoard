@@ -80,12 +80,19 @@ class TreasureChest( object ):
         item = copy.copy( itype_table.loc[item_ind] )
 
         # Add extra information
-        item.set_value( 'Item Type', self.settings.loot_table['Item Type'].loc[item_type_ind] )
-        item.set_value( 'Identified', self.settings.loot_table['Identified'].loc[item_type_ind] )
-        item.set_value( 'Chest ID', self.id )
-        item.set_value( 'Time', pd.to_datetime( pd.Timestamp.now() ) )
+        try:
+            def set_value( item, name, value ):
+                item.set_value( name, value )
+            set_value( item, 'Item Type', self.settings.loot_table['Item Type'].loc[item_type_ind] )
+        except AttributeError:
+            def set_value( item, name, value ):
+                item[name] = value
+            set_value( item, 'Item Type', self.settings.loot_table['Item Type'].loc[item_type_ind] )
+        set_value( item, 'Identified', self.settings.loot_table['Identified'].loc[item_type_ind] )
+        set_value( item, 'Chest ID', self.id )
+        set_value( item, 'Time', pd.to_datetime( pd.Timestamp.now() ) )
         # It's not clear to me why, but setting the time twice gets it in the right format...
-        item.set_value( 'Time', pd.to_datetime( pd.Timestamp.now() ) )
+        set_value( item, 'Time', pd.to_datetime( pd.Timestamp.now() ) )
 
         # Append to the list of items
         self.items.append( item )

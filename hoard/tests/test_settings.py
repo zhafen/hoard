@@ -32,7 +32,7 @@ class TestRetrieveGoogleDriveData( unittest.TestCase ):
 
     def test_retrieve_google_drive_data( self ):
 
-        os.system( './tests/run_retrieve_google_drive_data.py' )
+        os.system( 'python ./tests/run_retrieve_google_drive_data.py' )
 
         assert os.path.isdir( data_dir )
         assert os.path.isfile( os.path.join( data_dir, 'settings.xlsx' ) )
